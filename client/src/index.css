@@ -1534,3 +1534,69 @@ a:hover {
   color: var(--text-muted);
 }
 
+/* Quick Demo One-Click Logins */
+.quick-demo-box {
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+.quick-demo-title {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #166534;
+  margin-bottom: 10px;
+}
+.quick-demo-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.btn-quick-demo {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  border-radius: 8px;
+  transition: transform 0.15s, background 0.15s;
+}
+.btn-quick-demo.senior-demo {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde047;
+}
+.btn-quick-demo.senior-demo:hover {
+  background: #fef08a;
+  transform: translateX(3px);
+}
+.btn-quick-demo.caregiver-demo {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+.btn-quick-demo.caregiver-demo:hover {
+  background: #bae6fd;
+  transform: translateX(3px);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 18px 0;
+  color: var(--text-light);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid var(--border);
+}
+.auth-divider span {
+  padding: 0 10px;
+}
+

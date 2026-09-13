@@ -26,6 +26,24 @@ export default function Login() {
     }
   }
 
+  async function handleQuickLogin(role) {
+    setError("");
+    setLoading(true);
+    try {
+      const creds =
+        role === "elderly"
+          ? { email: "senior@demo.com", password: "password123" }
+          : { email: "caregiver@demo.com", password: "password123" };
+      const data = await api.login(creds);
+      login(data.token, data.user);
+      navigate("/");
+    } catch (err) {
+      setError(err.message || "Failed to log in");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="auth-card-container">
       <div className="card auth-card">
@@ -33,6 +51,33 @@ export default function Login() {
           <span className="auth-icon">🔑</span>
           <h1>Welcome Back</h1>
           <p className="auth-desc">Log in to view your schedule or check on your loved one.</p>
+        </div>
+
+        {/* Quick Demo Logins for fast evaluation */}
+        <div className="quick-demo-box">
+          <span className="quick-demo-title">⚡ Quick 1-Click Demo Login:</span>
+          <div className="quick-demo-buttons">
+            <button
+              type="button"
+              className="btn-quick-demo senior-demo"
+              onClick={() => handleQuickLogin("elderly")}
+              disabled={loading}
+            >
+              👵 Senior Citizen Mode (Grandma Eleanor)
+            </button>
+            <button
+              type="button"
+              className="btn-quick-demo caregiver-demo"
+              onClick={() => handleQuickLogin("caregiver")}
+              disabled={loading}
+            >
+              🩺 Caregiver Hub Mode (Alex)
+            </button>
+          </div>
+        </div>
+
+        <div className="auth-divider">
+          <span>or log in with your email</span>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
