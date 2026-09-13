@@ -1,7 +1,7 @@
-# SilverCare — Elderly Alert & Daily Schedule App
+# EverClear-Care — Elderly Alert & Daily Schedule App
 ### Created for the Congressional App Challenge (U.S. House of Representatives)
 
-**SilverCare** is an accessible, senior-first daily scheduling and automated caregiver alert application designed to support senior citizens (65+) in living independently while keeping family members and caregivers informed and connected in real time.
+**EverClear-Care** is an accessible, senior-first daily scheduling and automated caregiver alert application designed to support senior citizens (65+) in living independently while keeping family members and caregivers informed and connected in real time.
 
 ---
 

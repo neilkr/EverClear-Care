@@ -43,7 +43,7 @@ export default function Register() {
           <span className="auth-icon">📝</span>
           <h1>Create an Account</h1>
           <p className="auth-desc">
-            Sign up for the <strong>SilverCare</strong> elderly schedule & alert network.
+            Sign up for the <strong>EverClear-Care</strong> elderly schedule & alert network.
           </p>
         </div>
 

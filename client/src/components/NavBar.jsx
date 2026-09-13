@@ -20,7 +20,7 @@ export default function NavBar() {
       <Link to="/" className="brand">
         <span className="brand-icon" aria-hidden="true">💙</span>
         <div className="brand-text">
-          <span className="brand-title">SilverCare</span>
+          <span className="brand-title">EverClear-Care</span>
           <span className="brand-subtitle">Elderly Alert & Daily Schedule</span>
         </div>
       </Link>

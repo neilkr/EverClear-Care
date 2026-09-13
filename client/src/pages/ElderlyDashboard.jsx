@@ -455,7 +455,7 @@ export default function ElderlyDashboard() {
             📋 Copy Code
           </button>
           <p className="invite-help-text">
-            Caregivers can enter this on their SilverCare app to connect instantly.
+            Caregivers can enter this on their EverClear-Care app to connect instantly.
           </p>
         </div>
       </section>
