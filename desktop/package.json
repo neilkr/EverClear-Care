@@ -1,0 +1,13 @@
+{
+  "name": "care-schedule-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Electron desktop shell for the Care Schedule app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^32.0.0"
+  }
+}
