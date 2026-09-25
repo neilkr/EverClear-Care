@@ -25,7 +25,7 @@
   - Automatic alerts triggered if a senior misses their routine beyond the grace period (e.g. *“⚠️ Schedule Missed: Grandma Eleanor did not confirm 'Morning walk' (due at 8:00 AM)”*).
   - Emergency SOS alerts and check-in notifications with audible chime alerts.
   - Quick action to directly call or message the senior from any alert.
-- **Schedule Management**: Caregivers can view today's live completion progress and add or adjust routines for their senior loved ones directly.
+- **Schedule Management**: Caregivers can view todays live completion progress and add or adjust routines for their senior loved ones directly.
 
 ---
 
