@@ -77,6 +77,7 @@ export default function ElderlyDashboard() {
   const [showEditPhone, setShowEditPhone] = useState(false);
   const [showMoreContactOptions, setShowMoreContactOptions] = useState(false);
   const [showCustomForm, setShowCustomForm] = useState(false);
+  const [showInviteCode, setShowInviteCode] = useState(false);
   const [myPhone, setMyPhone] = useState(user?.phone || "");
   const [emergencyPhone, setEmergencyPhone] = useState(user?.emergencyPhone || "");
 
@@ -450,25 +451,44 @@ export default function ElderlyDashboard() {
         <div className="card senior-invite-card">
           <h2>🔑 Caregiver Connection Code</h2>
           <p className="invite-desc">
-            Share this code with your family member, nurse, or caregiver so they can monitor your schedule and receive automatic alerts if you miss an item.
+            Share this with your caregiver so they can follow your schedule and get alerts.
           </p>
-          <div className="giant-code-display" title="Your unique invite code">
-            {user.inviteCode}
-          </div>
-          <button
-            type="button"
-            className="btn-copy-code"
-            onClick={() => {
-              navigator.clipboard.writeText(user.inviteCode);
-              setSuccessMsg("Invite code copied to clipboard!");
-              setTimeout(() => setSuccessMsg(""), 3000);
-            }}
-          >
-            📋 Copy Code
-          </button>
-          <p className="invite-help-text">
-            Caregivers can enter this on their EverClear-Care app to connect instantly.
-          </p>
+
+          {!showInviteCode ? (
+            <button
+              type="button"
+              className="btn-primary btn-show-code"
+              onClick={() => setShowInviteCode(true)}
+            >
+              🔑 Show My Connection Code
+            </button>
+          ) : (
+            <>
+              <div className="giant-code-display" title="Your unique invite code">
+                {user.inviteCode}
+              </div>
+              <div className="invite-code-actions">
+                <button
+                  type="button"
+                  className="btn-copy-code"
+                  onClick={() => {
+                    navigator.clipboard.writeText(user.inviteCode);
+                    setSuccessMsg("Invite code copied to clipboard!");
+                    setTimeout(() => setSuccessMsg(""), 3000);
+                  }}
+                >
+                  📋 Copy Code
+                </button>
+                <button
+                  type="button"
+                  className="btn-text-action"
+                  onClick={() => setShowInviteCode(false)}
+                >
+                  Hide Code
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </section>
 

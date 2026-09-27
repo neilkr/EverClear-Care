@@ -105,10 +105,12 @@ a:hover {
 .navbar {
   background: #ffffff;
   border-bottom: 2px solid var(--border);
-  padding: 14px 28px;
+  padding: 12px 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
   box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
@@ -150,7 +152,8 @@ a:hover {
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .btn-accessibility {
@@ -159,7 +162,8 @@ a:hover {
   color: #334155;
   font-weight: 700;
   padding: 8px 14px;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
 }
 .btn-accessibility:hover {
   background: #e2e8f0;
@@ -168,7 +172,8 @@ a:hover {
 .user-section {
   display: flex;
   align-items: center;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .user-badge {
@@ -179,7 +184,8 @@ a:hover {
   border: 1px solid var(--border);
   padding: 6px 12px;
   border-radius: 20px;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  white-space: nowrap;
 }
 
 .role-pill {
@@ -229,9 +235,9 @@ a:hover {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 24px;
+  padding: 22px;
   box-shadow: var(--shadow-sm);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .card h2 {
@@ -367,12 +373,14 @@ a:hover {
   background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
   color: #ffffff;
   border-radius: var(--radius);
-  padding: 28px 32px;
+  padding: 22px 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
   box-shadow: var(--shadow-md);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .greeting-pill {
@@ -407,7 +415,7 @@ a:hover {
 
 .big-clock-display {
   font-family: var(--font-mono);
-  font-size: 2.4rem;
+  font-size: 2rem;
   font-weight: 600;
   background: rgba(0, 0, 0, 0.25);
   padding: 6px 16px;
@@ -704,14 +712,14 @@ a:hover {
 }
 .giant-code-display {
   font-family: var(--font-mono);
-  font-size: 2.5rem;
+  font-size: 2.1rem;
   font-weight: 700;
   color: #0369a1;
   background: #f0f9ff;
   border: 2px dashed #7dd3fc;
-  padding: 12px 28px;
+  padding: 10px 24px;
   border-radius: 16px;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   margin-bottom: 14px;
 }
 .btn-copy-code {
@@ -723,6 +731,16 @@ a:hover {
 }
 .btn-copy-code:hover {
   background: #0369a1;
+}
+.btn-show-code {
+  padding: 14px 28px;
+  font-size: 1.05rem;
+}
+.invite-code-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 .invite-help-text {
   font-size: 0.85rem;
@@ -870,16 +888,18 @@ a:hover {
 .task-card-right {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   gap: 16px;
 }
 
 .btn-mark-done-large {
   background: var(--success);
   color: #ffffff;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 800;
-  padding: 12px 24px;
+  padding: 12px 22px;
   border-radius: 12px;
+  white-space: nowrap;
   box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
   min-height: 48px;
 }
@@ -926,7 +946,7 @@ a:hover {
   background: #fee2e2;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
   .senior-task-card {
     flex-direction: column;
     align-items: flex-start;
