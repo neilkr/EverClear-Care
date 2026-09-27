@@ -60,7 +60,8 @@ body {
   background: var(--bg-app);
   color: var(--text-main);
   min-height: 100vh;
-  line-height: 1.5;
+  line-height: 1.55;
+  font-size: 17px;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -73,6 +74,7 @@ button {
   cursor: pointer;
   border: none;
   border-radius: var(--radius-sm);
+  min-height: 44px;
   transition: all 0.2s ease;
 }
 
@@ -309,11 +311,29 @@ a:hover {
   background: transparent;
   color: var(--primary);
   font-weight: 700;
-  padding: 4px 8px;
-  font-size: 0.88rem;
+  padding: 8px 12px;
+  font-size: 0.92rem;
+  min-height: 40px;
 }
 .btn-text-action:hover {
   background: #f0f9ff;
+}
+
+/* Elderly-friendly disclosure toggle: keeps secondary actions out of the way until needed */
+.btn-more-options-toggle {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  color: #475569;
+}
+.btn-more-options-toggle:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
 }
 
 /* Alerts & Notifications */
@@ -639,7 +659,8 @@ a:hover {
 
 .test-alert-row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  margin-top: 10px;
 }
 .btn-checkin {
   flex: 1;
@@ -647,8 +668,9 @@ a:hover {
   border: 1px solid #cbd5e1;
   color: #334155;
   font-weight: 700;
-  padding: 10px;
-  font-size: 0.9rem;
+  padding: 12px;
+  font-size: 0.95rem;
+  min-height: 48px;
 }
 .btn-checkin:hover {
   background: #e2e8f0;
@@ -659,8 +681,9 @@ a:hover {
   border: 1px solid #e9d5ff;
   color: #7e22ce;
   font-weight: 700;
-  padding: 10px;
-  font-size: 0.9rem;
+  padding: 12px;
+  font-size: 0.95rem;
+  min-height: 48px;
 }
 .btn-test-alert:hover {
   background: #f3e8ff;
@@ -829,17 +852,17 @@ a:hover {
   margin-top: 4px;
 }
 .tag-completed {
-  font-size: 0.85rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: #15803d;
 }
 .tag-missed {
-  font-size: 0.85rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: #b91c1c;
 }
 .tag-pending {
-  font-size: 0.85rem;
+  font-size: 0.92rem;
   font-weight: 700;
   color: #b45309;
 }
@@ -874,7 +897,7 @@ a:hover {
 .task-card-subactions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
 }
 
 .btn-card-audio {
@@ -882,8 +905,9 @@ a:hover {
   border: 1px solid #cbd5e1;
   color: #334155;
   font-weight: 700;
-  padding: 8px 12px;
-  font-size: 0.88rem;
+  padding: 10px 14px;
+  font-size: 0.92rem;
+  min-height: 44px;
 }
 .btn-card-audio:hover {
   background: #e2e8f0;
@@ -892,8 +916,10 @@ a:hover {
 .btn-card-delete {
   background: transparent;
   color: #94a3b8;
-  font-size: 1.1rem;
-  padding: 8px;
+  font-size: 1.25rem;
+  padding: 10px;
+  min-width: 44px;
+  min-height: 44px;
 }
 .btn-card-delete:hover {
   color: #ef4444;

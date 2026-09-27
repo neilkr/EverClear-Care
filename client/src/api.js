@@ -4,6 +4,10 @@ function getToken() {
   return localStorage.getItem("token");
 }
 
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 // ============================================================================
 // BROWSER DEMO / LOCALSTORAGE FALLBACK ENGINE
 // Ensures full functionality even on GitHub Pages or if backend is offline
@@ -42,15 +46,24 @@ function initDemoStorage() {
     localStorage.setItem("sc_links", JSON.stringify(defaultLinks));
   }
 
+  // Task definitions no longer carry completion state directly — that lives in sc_task_logs,
+  // keyed per calendar date, so "I did this" resets automatically every day.
   if (!localStorage.getItem("sc_tasks")) {
     const defaultTasks = [
-      { id: 1, elderlyId: 1, title: "Morning Walk in the Park", scheduled_time: "08:00", category: "walk", days_of_week: "0,1,2,3,4,5,6", active: 1, status: "completed", completedAt: new Date().toISOString() },
-      { id: 2, elderlyId: 1, title: "Morning Blood Pressure Medication", scheduled_time: "09:00", category: "medication", days_of_week: "0,1,2,3,4,5,6", active: 1, status: "pending", completedAt: null },
-      { id: 3, elderlyId: 1, title: "Healthy Lunch & Hydration", scheduled_time: "12:30", category: "meal", days_of_week: "0,1,2,3,4,5,6", active: 1, status: "pending", completedAt: null },
-      { id: 4, elderlyId: 1, title: "Afternoon Walk & Fresh Air", scheduled_time: "17:30", category: "walk", days_of_week: "0,1,2,3,4,5,6", active: 1, status: "pending", completedAt: null },
-      { id: 5, elderlyId: 1, title: "Evening Medication & Rest", scheduled_time: "20:30", category: "medication", days_of_week: "0,1,2,3,4,5,6", active: 1, status: "pending", completedAt: null },
+      { id: 1, elderlyId: 1, title: "Morning Walk in the Park", scheduled_time: "08:00", category: "walk", days_of_week: "0,1,2,3,4,5,6", active: 1 },
+      { id: 2, elderlyId: 1, title: "Morning Blood Pressure Medication", scheduled_time: "09:00", category: "medication", days_of_week: "0,1,2,3,4,5,6", active: 1 },
+      { id: 3, elderlyId: 1, title: "Healthy Lunch & Hydration", scheduled_time: "12:30", category: "meal", days_of_week: "0,1,2,3,4,5,6", active: 1 },
+      { id: 4, elderlyId: 1, title: "Afternoon Walk & Fresh Air", scheduled_time: "17:30", category: "walk", days_of_week: "0,1,2,3,4,5,6", active: 1 },
+      { id: 5, elderlyId: 1, title: "Evening Medication & Rest", scheduled_time: "20:30", category: "medication", days_of_week: "0,1,2,3,4,5,6", active: 1 },
     ];
     localStorage.setItem("sc_tasks", JSON.stringify(defaultTasks));
+  }
+
+  if (!localStorage.getItem("sc_task_logs")) {
+    const defaultLogs = [
+      { taskId: 1, date: todayISO(), status: "completed", completedAt: new Date().toISOString() },
+    ];
+    localStorage.setItem("sc_task_logs", JSON.stringify(defaultLogs));
   }
 
   if (!localStorage.getItem("sc_alerts")) {
@@ -89,13 +102,32 @@ function getLocalUser() {
   return raw ? JSON.parse(raw) : null;
 }
 
+// Finds today's completion log for a task, creating a fresh "pending" one if this is a new day
+function getOrCreateTodayLog(logs, taskId, date) {
+  let log = logs.find((l) => l.taskId === taskId && l.date === date);
+  if (!log) {
+    log = { taskId, date, status: "pending", completedAt: null };
+    logs.push(log);
+  }
+  return log;
+}
+
+function attachTodayStatus(tList, logs, date) {
+  return tList.map((t) => {
+    const log = getOrCreateTodayLog(logs, t.id, date);
+    return { ...t, status: log.status, completedAt: log.completedAt };
+  });
+}
+
 function handleMockRequest(path, method, body) {
   initDemoStorage();
   const users = JSON.parse(localStorage.getItem("sc_users") || "[]");
   const links = JSON.parse(localStorage.getItem("sc_links") || "[]");
   const tasks = JSON.parse(localStorage.getItem("sc_tasks") || "[]");
+  const taskLogs = JSON.parse(localStorage.getItem("sc_task_logs") || "[]");
   const alerts = JSON.parse(localStorage.getItem("sc_alerts") || "[]");
   const curUser = getLocalUser();
+  const date = todayISO();
 
   // /auth/register
   if (path === "/auth/register" && method === "POST") {
@@ -181,10 +213,12 @@ function handleMockRequest(path, method, body) {
 
   // /tasks/today
   if (path === "/tasks/today") {
-    if (!curUser) return { date: new Date().toISOString().slice(0, 10), tasks: [] };
+    if (!curUser) return { date, tasks: [] };
     const myTasks = tasks.filter((t) => t.elderlyId === curUser.id && t.active !== 0);
     myTasks.sort((a, b) => (a.scheduled_time || "").localeCompare(b.scheduled_time || ""));
-    return { date: new Date().toISOString().slice(0, 10), tasks: myTasks };
+    const withStatus = attachTodayStatus(myTasks, taskLogs, date);
+    localStorage.setItem("sc_task_logs", JSON.stringify(taskLogs));
+    return { date, tasks: withStatus };
   }
 
   // /tasks/:id/complete
@@ -192,9 +226,10 @@ function handleMockRequest(path, method, body) {
     const id = Number(path.split("/")[2]);
     const task = tasks.find((t) => t.id === id);
     if (task) {
-      task.status = "completed";
-      task.completedAt = new Date().toISOString();
-      localStorage.setItem("sc_tasks", JSON.stringify(tasks));
+      const log = getOrCreateTodayLog(taskLogs, task.id, date);
+      log.status = "completed";
+      log.completedAt = new Date().toISOString();
+      localStorage.setItem("sc_task_logs", JSON.stringify(taskLogs));
     }
     return { ok: true };
   }
@@ -211,8 +246,6 @@ function handleMockRequest(path, method, body) {
       category: category || "general",
       days_of_week: "0,1,2,3,4,5,6",
       active: 1,
-      status: "pending",
-      completedAt: null,
     };
     tasks.push(newTask);
     localStorage.setItem("sc_tasks", JSON.stringify(tasks));
@@ -261,7 +294,11 @@ function handleMockRequest(path, method, body) {
 
     // Attach summary stats
     const enhanced = linkedUsers.map((p) => {
-      const pTasks = tasks.filter((t) => t.elderlyId === p.id && t.active !== 0);
+      const pTasks = attachTodayStatus(
+        tasks.filter((t) => t.elderlyId === p.id && t.active !== 0),
+        taskLogs,
+        date
+      );
       const completed = pTasks.filter((t) => t.status === "completed").length;
       const missed = pTasks.filter((t) => t.status === "missed").length;
       const pending = pTasks.filter((t) => t.status === "pending").length;
@@ -270,6 +307,7 @@ function handleMockRequest(path, method, body) {
         todaySummary: { total: pTasks.length, completed, pending, missed },
       };
     });
+    localStorage.setItem("sc_task_logs", JSON.stringify(taskLogs));
     return { elderly: enhanced };
   }
 
@@ -279,7 +317,9 @@ function handleMockRequest(path, method, body) {
     const elderlyId = Number(parts[3]);
     const pTasks = tasks.filter((t) => t.elderlyId === elderlyId && t.active !== 0);
     pTasks.sort((a, b) => (a.scheduled_time || "").localeCompare(b.scheduled_time || ""));
-    return { date: new Date().toISOString().slice(0, 10), tasks: pTasks };
+    const withStatus = attachTodayStatus(pTasks, taskLogs, date);
+    localStorage.setItem("sc_task_logs", JSON.stringify(taskLogs));
+    return { date, tasks: withStatus };
   }
 
   // /caregiver/my-caregivers

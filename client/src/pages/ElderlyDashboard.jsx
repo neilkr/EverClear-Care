@@ -75,6 +75,8 @@ export default function ElderlyDashboard() {
   const [activeAlertTask, setActiveAlertTask] = useState(null);
   const [isEmergencySending, setIsEmergencySending] = useState(false);
   const [showEditPhone, setShowEditPhone] = useState(false);
+  const [showMoreContactOptions, setShowMoreContactOptions] = useState(false);
+  const [showCustomForm, setShowCustomForm] = useState(false);
   const [myPhone, setMyPhone] = useState(user?.phone || "");
   const [emergencyPhone, setEmergencyPhone] = useState(user?.emergencyPhone || "");
 
@@ -416,22 +418,32 @@ export default function ElderlyDashboard() {
             </button>
           </div>
 
-          <div className="test-alert-row">
-            <button
-              type="button"
-              className="btn-checkin"
-              onClick={() => handleTriggerEmergency("checkin")}
-            >
-              👋 Send "I'm OK" Check-in
-            </button>
-            <button
-              type="button"
-              className="btn-test-alert"
-              onClick={() => handleTriggerEmergency("test")}
-            >
-              🧪 Test Alert (Demo)
-            </button>
-          </div>
+          <button
+            type="button"
+            className="btn-text-action btn-more-options-toggle"
+            onClick={() => setShowMoreContactOptions((s) => !s)}
+          >
+            {showMoreContactOptions ? "▲ Hide extra options" : "▼ More options (check-in, test alert)"}
+          </button>
+
+          {showMoreContactOptions && (
+            <div className="test-alert-row">
+              <button
+                type="button"
+                className="btn-checkin"
+                onClick={() => handleTriggerEmergency("checkin")}
+              >
+                👋 Send "I'm OK" Check-in
+              </button>
+              <button
+                type="button"
+                className="btn-test-alert"
+                onClick={() => handleTriggerEmergency("test")}
+              >
+                🧪 Test Alert (Demo)
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Share Invite Code Card */}
@@ -558,7 +570,7 @@ export default function ElderlyDashboard() {
       <section className="card add-task-card">
         <h2>➕ Add to Daily Schedule</h2>
         <p className="add-task-desc">
-          Choose a quick preset or create a custom scheduled activity (e.g. morning walk, blood pressure check, medication).
+          Tap a quick preset below to add it instantly.
         </p>
 
         {/* Quick Presets */}
@@ -580,50 +592,60 @@ export default function ElderlyDashboard() {
           </div>
         </div>
 
+        <button
+          type="button"
+          className="btn-text-action btn-more-options-toggle"
+          onClick={() => setShowCustomForm((s) => !s)}
+        >
+          {showCustomForm ? "▲ Hide custom activity form" : "➕ Create a Custom Activity Instead"}
+        </button>
+
         {/* Add Task Form */}
-        <form onSubmit={handleAddTask} className="add-task-form">
-          <div className="form-group-flex">
-            <label className="form-label-flex">
-              Activity Name:
-              <input
-                type="text"
-                placeholder="e.g. Morning walk in the park"
-                value={newTask.title}
-                onChange={(e) => setNewTask((t) => ({ ...t, title: e.target.value }))}
-                required
-              />
-            </label>
+        {showCustomForm && (
+          <form onSubmit={handleAddTask} className="add-task-form">
+            <div className="form-group-flex">
+              <label className="form-label-flex">
+                Activity Name:
+                <input
+                  type="text"
+                  placeholder="e.g. Morning walk in the park"
+                  value={newTask.title}
+                  onChange={(e) => setNewTask((t) => ({ ...t, title: e.target.value }))}
+                  required
+                />
+              </label>
 
-            <label className="form-label-flex">
-              Scheduled Time:
-              <input
-                type="time"
-                value={newTask.scheduledTime}
-                onChange={(e) => setNewTask((t) => ({ ...t, scheduledTime: e.target.value }))}
-                required
-              />
-            </label>
+              <label className="form-label-flex">
+                Scheduled Time:
+                <input
+                  type="time"
+                  value={newTask.scheduledTime}
+                  onChange={(e) => setNewTask((t) => ({ ...t, scheduledTime: e.target.value }))}
+                  required
+                />
+              </label>
 
-            <label className="form-label-flex">
-              Category:
-              <select
-                value={newTask.category}
-                onChange={(e) => setNewTask((t) => ({ ...t, category: e.target.value }))}
-              >
-                <option value="walk">🚶 Walk / Exercise</option>
-                <option value="medication">💊 Medication / Pills</option>
-                <option value="meal">🍲 Meal / Food</option>
-                <option value="hydration">💧 Hydration / Water</option>
-                <option value="doctor">🩺 Doctor / Health</option>
-                <option value="general">⭐ General Routine</option>
-              </select>
-            </label>
-          </div>
+              <label className="form-label-flex">
+                Category:
+                <select
+                  value={newTask.category}
+                  onChange={(e) => setNewTask((t) => ({ ...t, category: e.target.value }))}
+                >
+                  <option value="walk">🚶 Walk / Exercise</option>
+                  <option value="medication">💊 Medication / Pills</option>
+                  <option value="meal">🍲 Meal / Food</option>
+                  <option value="hydration">💧 Hydration / Water</option>
+                  <option value="doctor">🩺 Doctor / Health</option>
+                  <option value="general">⭐ General Routine</option>
+                </select>
+              </label>
+            </div>
 
-          <button type="submit" className="btn-primary btn-add-submit">
-            ➕ Add Activity to Schedule
-          </button>
-        </form>
+            <button type="submit" className="btn-primary btn-add-submit">
+              ➕ Add Activity to Schedule
+            </button>
+          </form>
+        )}
       </section>
     </div>
   );

@@ -43,7 +43,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1100,
     height: 800,
-    title: "Care Schedule",
+    title: "EverClear-Care",
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
