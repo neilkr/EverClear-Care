@@ -1,6 +1,14 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { api } from "../api.js";
 import { useAuth } from "../AuthContext.jsx";
+import {
+  speak,
+  playVoice,
+  playDataUrl,
+  getTaskRecording,
+  saveTaskRecording,
+  deleteTaskRecording,
+} from "../voice.js";
 
 const PRESET_TASKS = [
   { title: "Morning Walk", time: "08:00", category: "walk", icon: "🚶" },
@@ -53,54 +61,17 @@ function playChimeSound() {
   }
 }
 
-// Picks the most childlike voice available; higher pitch makes any voice sound younger
-function pickKidVoice() {
-  const voices = window.speechSynthesis.getVoices();
-  if (!voices.length) return null;
-  const kidKeywords = ["child", "kid", "junior", "young"];
-  const femaleKeywords = ["female", "girl", "samantha", "zira", "victoria", "karen", "moira", "tessa"];
-  return (
-    voices.find((v) => kidKeywords.some((k) => v.name.toLowerCase().includes(k))) ||
-    voices.find((v) => femaleKeywords.some((k) => v.name.toLowerCase().includes(k))) ||
-    voices.find((v) => v.lang.startsWith("en")) ||
-    voices[0]
-  );
-}
-
-function speak(text) {
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.95;
-    utterance.pitch = 1.8; // high pitch to sound like a kid
-    const kidVoice = pickKidVoice();
-    if (kidVoice) utterance.voice = kidVoice;
-    window.speechSynthesis.speak(utterance);
-  }
-}
-
-// Warm up voice list (some browsers load voices asynchronously)
-if ("speechSynthesis" in window) {
-  window.speechSynthesis.getVoices();
-  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-}
-
-// Custom voice recordings are stored per task so reminders can play a real voice
-function getRecording(taskId) {
-  return localStorage.getItem(`sc_voice_rec_${taskId}`);
-}
-
+// Task recordings take priority; global custom slots cover everything else
 function hasRecording(taskId) {
-  return !!getRecording(taskId);
+  return !!getTaskRecording(taskId);
 }
 
 function playTaskAudio(task) {
-  const rec = getRecording(task.id);
+  const rec = getTaskRecording(task.id);
   if (rec) {
-    const audio = new Audio(rec);
-    audio.play().catch(() => speak(`${task.title} scheduled for ${format12Hour(task.scheduled_time)}.`));
+    playDataUrl(rec).catch(() => speak(`${task.title} scheduled for ${format12Hour(task.scheduled_time)}.`));
   } else {
-    speak(`${task.title} scheduled for ${format12Hour(task.scheduled_time)}. Status is ${task.status}.`);
+    playVoice("reminder", `${task.title} scheduled for ${format12Hour(task.scheduled_time)}. Status is ${task.status}.`);
   }
 }
 
@@ -173,12 +144,11 @@ export default function ElderlyDashboard() {
           alertedTasksRef.current.add(t.id);
           setActiveAlertTask(t);
           playChimeSound();
-          const rec = getRecording(t.id);
+          const rec = getTaskRecording(t.id);
           if (rec) {
-            const audio = new Audio(rec);
-            audio.play().catch(() => speak(`Reminder: It is ${format12Hour(t.scheduled_time)}. Time for your ${t.title}!`));
+            playDataUrl(rec).catch(() => speak(`Reminder: It is ${format12Hour(t.scheduled_time)}. Time for your ${t.title}!`));
           } else {
-            speak(`Reminder: It is ${format12Hour(t.scheduled_time)}. Time for your ${t.title}! Please mark it done when finished.`);
+            playVoice("reminder", `Reminder: It is ${format12Hour(t.scheduled_time)}. Time for your ${t.title}! Please mark it done when finished.`);
           }
         }
       }
@@ -195,7 +165,7 @@ export default function ElderlyDashboard() {
         setActiveAlertTask(null);
       }
       playChimeSound();
-      speak(`Wonderful! You marked ${title || "your task"} complete.`);
+      playVoice("taskComplete", `Wonderful! You marked ${title || "your task"} complete.`);
       setTimeout(() => setSuccessMsg(""), 5000);
       await loadData();
     } catch (err) {
@@ -251,7 +221,7 @@ export default function ElderlyDashboard() {
         const blob = new Blob(recordChunksRef.current, { type: recorder.mimeType || "audio/webm" });
         const reader = new FileReader();
         reader.onloadend = () => {
-          localStorage.setItem(`sc_voice_rec_${task.id}`, reader.result);
+          saveTaskRecording(task.id, reader.result);
           setSuccessMsg(`🎙️ Voice message saved for "${task.title}"! It will play instead of the robot voice.`);
           setTimeout(() => setSuccessMsg(""), 5000);
         };
@@ -262,7 +232,7 @@ export default function ElderlyDashboard() {
       recorder.start();
       recorderRef.current = recorder;
       setRecordingTaskId(task.id);
-      speak("Recording started. Speak now, then tap stop.");
+      playVoice("recordingStart", "Recording started. Speak now, then tap stop.");
     } catch (err) {
       setError("Microphone access is needed to record your voice message.");
     }
@@ -274,7 +244,7 @@ export default function ElderlyDashboard() {
     }
     try {
       await api.deleteTask(id);
-      localStorage.removeItem(`sc_voice_rec_${id}`);
+      deleteTaskRecording(id);
       setSuccessMsg(`Removed "${title}".`);
       setTimeout(() => setSuccessMsg(""), 3000);
       await loadData();
@@ -296,7 +266,8 @@ export default function ElderlyDashboard() {
           : "👋 Check-in sent to your caregiver!"
       );
       playChimeSound();
-      speak(
+      playVoice(
+        type === "emergency" ? "emergency" : "checkin",
         type === "emergency"
           ? "Emergency alert sent to your caregiver."
           : "Check-in alert sent."
@@ -324,7 +295,7 @@ export default function ElderlyDashboard() {
 
   function readAloudAllSchedule() {
     if (tasks.length === 0) {
-      speak("You have no tasks scheduled for today.");
+      playVoice("readSchedule", "You have no tasks scheduled for today.");
       return;
     }
     const pending = tasks.filter((t) => t.status === "pending");
@@ -338,7 +309,7 @@ export default function ElderlyDashboard() {
     } else {
       msg += "All tasks for today are completed! Great work.";
     }
-    speak(msg);
+    playVoice("readSchedule", msg);
   }
 
   const primaryCaregiver = caregivers[0];

@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../AuthContext.jsx";
 import { useState, useEffect } from "react";
+import VoiceStudio from "./VoiceStudio.jsx";
 
 export default function NavBar() {
   const { user, logout } = useAuth();
   const [largeFont, setLargeFont] = useState(() => localStorage.getItem("elderly_large_font") === "true");
+  const [showVoiceStudio, setShowVoiceStudio] = useState(false);
 
   useEffect(() => {
     if (largeFont) {
@@ -16,7 +18,8 @@ export default function NavBar() {
   }, [largeFont]);
 
   return (
-    <header className="navbar">
+    <>
+      <header className="navbar">
       <Link to="/" className="brand">
         <span className="brand-icon" aria-hidden="true">💙</span>
         <div className="brand-text">
@@ -26,6 +29,15 @@ export default function NavBar() {
       </Link>
 
       <div className="nav-right">
+        <button
+          type="button"
+          className="btn-voice-studio"
+          onClick={() => setShowVoiceStudio(true)}
+          title="Record voice messages in your own voice"
+        >
+          🎙️ Record Voice
+        </button>
+
         <button
           type="button"
           className="btn-accessibility"
@@ -54,6 +66,9 @@ export default function NavBar() {
           </div>
         )}
       </div>
-    </header>
+      </header>
+
+      {showVoiceStudio && <VoiceStudio onClose={() => setShowVoiceStudio(false)} />}
+    </>
   );
 }
