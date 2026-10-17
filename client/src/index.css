@@ -933,6 +933,31 @@ a:hover {
   background: #e2e8f0;
 }
 
+.btn-card-record {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  font-size: 1.1rem;
+  padding: 10px;
+  min-width: 44px;
+  min-height: 44px;
+}
+.btn-card-record:hover {
+  background: #e2e8f0;
+}
+.btn-card-record.recording-active {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #b91c1c;
+  animation: pulseRecording 1.2s infinite;
+}
+
+@keyframes pulseRecording {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
 .btn-card-delete {
   background: transparent;
   color: #94a3b8;

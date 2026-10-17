@@ -85,6 +85,25 @@ if ("speechSynthesis" in window) {
   window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 }
 
+// Custom voice recordings are stored per task so reminders can play a real voice
+function getRecording(taskId) {
+  return localStorage.getItem(`sc_voice_rec_${taskId}`);
+}
+
+function hasRecording(taskId) {
+  return !!getRecording(taskId);
+}
+
+function playTaskAudio(task) {
+  const rec = getRecording(task.id);
+  if (rec) {
+    const audio = new Audio(rec);
+    audio.play().catch(() => speak(`${task.title} scheduled for ${format12Hour(task.scheduled_time)}.`));
+  } else {
+    speak(`${task.title} scheduled for ${format12Hour(task.scheduled_time)}. Status is ${task.status}.`);
+  }
+}
+
 export default function ElderlyDashboard() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState([]);
@@ -102,8 +121,11 @@ export default function ElderlyDashboard() {
   const [showInviteCode, setShowInviteCode] = useState(false);
   const [myPhone, setMyPhone] = useState(user?.phone || "");
   const [emergencyPhone, setEmergencyPhone] = useState(user?.emergencyPhone || "");
+  const [recordingTaskId, setRecordingTaskId] = useState(null);
 
   const alertedTasksRef = useRef(new Set());
+  const recorderRef = useRef(null);
+  const recordChunksRef = useRef([]);
 
   // Clock ticker
   useEffect(() => {
@@ -151,7 +173,13 @@ export default function ElderlyDashboard() {
           alertedTasksRef.current.add(t.id);
           setActiveAlertTask(t);
           playChimeSound();
-          speak(`Reminder: It is ${format12Hour(t.scheduled_time)}. Time for your ${t.title}! Please mark it done when finished.`);
+          const rec = getRecording(t.id);
+          if (rec) {
+            const audio = new Audio(rec);
+            audio.play().catch(() => speak(`Reminder: It is ${format12Hour(t.scheduled_time)}. Time for your ${t.title}!`));
+          } else {
+            speak(`Reminder: It is ${format12Hour(t.scheduled_time)}. Time for your ${t.title}! Please mark it done when finished.`);
+          }
         }
       }
     });
@@ -205,12 +233,48 @@ export default function ElderlyDashboard() {
     });
   }
 
+  async function handleToggleRecording(task) {
+    if (recordingTaskId === task.id) {
+      recorderRef.current?.stop();
+      return;
+    }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setError("Voice recording is not supported in this browser.");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      recordChunksRef.current = [];
+      recorder.ondataavailable = (e) => recordChunksRef.current.push(e.data);
+      recorder.onstop = () => {
+        const blob = new Blob(recordChunksRef.current, { type: recorder.mimeType || "audio/webm" });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          localStorage.setItem(`sc_voice_rec_${task.id}`, reader.result);
+          setSuccessMsg(`🎙️ Voice message saved for "${task.title}"! It will play instead of the robot voice.`);
+          setTimeout(() => setSuccessMsg(""), 5000);
+        };
+        reader.readAsDataURL(blob);
+        stream.getTracks().forEach((track) => track.stop());
+        setRecordingTaskId(null);
+      };
+      recorder.start();
+      recorderRef.current = recorder;
+      setRecordingTaskId(task.id);
+      speak("Recording started. Speak now, then tap stop.");
+    } catch (err) {
+      setError("Microphone access is needed to record your voice message.");
+    }
+  }
+
   async function handleDeleteTask(id, title) {
     if (!window.confirm(`Are you sure you want to remove "${title}" from your daily schedule?`)) {
       return;
     }
     try {
       await api.deleteTask(id);
+      localStorage.removeItem(`sc_voice_rec_${id}`);
       setSuccessMsg(`Removed "${title}".`);
       setTimeout(() => setSuccessMsg(""), 3000);
       await loadData();
@@ -586,10 +650,18 @@ export default function ElderlyDashboard() {
                       <button
                         type="button"
                         className="btn-card-audio"
-                        onClick={() => speak(`${task.title} scheduled for ${format12Hour(task.scheduled_time)}. Status is ${task.status}.`)}
-                        title="Read this task aloud"
+                        onClick={() => playTaskAudio(task)}
+                        title={hasRecording(task.id) ? "Play your recorded voice message" : "Read this task aloud"}
                       >
-                        🔊 Listen
+                        {hasRecording(task.id) ? "▶️ Play My Voice" : "🔊 Listen"}
+                      </button>
+                      <button
+                        type="button"
+                        className={`btn-card-record ${recordingTaskId === task.id ? "recording-active" : ""}`}
+                        onClick={() => handleToggleRecording(task)}
+                        title={recordingTaskId === task.id ? "Stop recording" : "Record your own voice message for this task"}
+                      >
+                        {recordingTaskId === task.id ? "⏹️ Stop" : "🎙️"}
                       </button>
                       <button
                         type="button"
