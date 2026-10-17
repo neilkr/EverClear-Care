@@ -53,14 +53,36 @@ function playChimeSound() {
   }
 }
 
+// Picks the most childlike voice available; higher pitch makes any voice sound younger
+function pickKidVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+  const kidKeywords = ["child", "kid", "junior", "young"];
+  const femaleKeywords = ["female", "girl", "samantha", "zira", "victoria", "karen", "moira", "tessa"];
+  return (
+    voices.find((v) => kidKeywords.some((k) => v.name.toLowerCase().includes(k))) ||
+    voices.find((v) => femaleKeywords.some((k) => v.name.toLowerCase().includes(k))) ||
+    voices.find((v) => v.lang.startsWith("en")) ||
+    voices[0]
+  );
+}
+
 function speak(text) {
   if ("speechSynthesis" in window) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.88; // comfortable, clear rate for seniors
-    utterance.pitch = 1.0;
+    utterance.rate = 0.95;
+    utterance.pitch = 1.8; // high pitch to sound like a kid
+    const kidVoice = pickKidVoice();
+    if (kidVoice) utterance.voice = kidVoice;
     window.speechSynthesis.speak(utterance);
   }
+}
+
+// Warm up voice list (some browsers load voices asynchronously)
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 }
 
 export default function ElderlyDashboard() {
